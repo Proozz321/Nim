@@ -1,4 +1,5 @@
 const POINT_BYTES: usize = 32;
+use x25519_dalek::{PublicKey as DalekPublic, StaticSecret};
 
 //Public Key
 pub struct PublicKey(pub [u8; POINT_BYTES]);
@@ -28,14 +29,33 @@ impl SecretKey {
 
 }
 
+
 pub fn to_hex(bytes: &[u8]) -> String {
     bytes.iter().map(|b| format!("{:02x}", b)).collect()
 }
 
+
+pub fn from_hex(s: &str) -> Result<Vec<u8>, String> {
+    let s = s.trim();
+    if s.len() % 2 != 0 {
+        return Err("Hex com tamanho ímpar".to_string());
+    }
+    (0..s.len())
+        .step_by(2)
+        .map(|i| u8::from_str_radix(&s[i..i + 2], 16).map_err(|_| "Hex inválido".to_string()))
+        .collect()
+}
+
+pub fn read_32(s: &str) -> Result<[u8; 32], String> {
+    from_hex(s)?
+        .try_into()
+        .map_err(|_| "A chave tem de ter 32 bytes (64 caracteres hex)".to_string())
+}
+
 pub fn generate_keys() -> (SecretKey, PublicKey) {
-    let sk = SecretKey::new(rand::random::<[u8; SecretKey::BYTES]>());
-    // TEMPORÁRIO: uma chave pública a sério é derivada da privada
-    let pk = PublicKey::new(rand::random::<[u8; PublicKey::BYTES]>());
-    (sk, pk)
+    let sk_bytes: [u8; 32] = rand::random();
+    let secret = StaticSecret::from(sk_bytes);
+    let public = DalekPublic::from(&secret);
+    (SecretKey::new(sk_bytes), PublicKey::new(public.to_bytes()))
 }
 
