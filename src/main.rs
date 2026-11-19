@@ -1,4 +1,5 @@
 use std::io;
+use nim::keys::{generate_keys, to_hex};
 
 fn main() {
     println!("\n\n");
@@ -26,7 +27,11 @@ fn main() {
         };
 
         match num {
-            1 => println!("funcao gerar chaves"),
+            1 => {
+                let (sk, pk) = generate_keys();
+                println!("Secret Key: {}", to_hex(&sk.0));
+                println!("Public Key: {}", to_hex(&pk.0));
+            }
             2 => println!("funcao encriptar mensagem"),
             3 => println!("funcao decriptar mensagem"),
             4 => {

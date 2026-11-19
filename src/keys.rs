@@ -1,7 +1,7 @@
 const POINT_BYTES: usize = 32;
 
 //Public Key
-pub struct PublicKey([u8; POINT_BYTES]);
+pub struct PublicKey(pub [u8; POINT_BYTES]);
 
 impl PublicKey {
     // Number of bytes
@@ -13,7 +13,7 @@ impl PublicKey {
     }
 }
 
-pub struct SecretKey([u8; SecretKey::BYTES]);
+pub struct SecretKey(pub [u8; SecretKey::BYTES]);
 
 //Secret Key
 impl SecretKey {
@@ -26,5 +26,16 @@ impl SecretKey {
         SecretKey(sk)
     }
 
+}
+
+pub fn to_hex(bytes: &[u8]) -> String {
+    bytes.iter().map(|b| format!("{:02x}", b)).collect()
+}
+
+pub fn generate_keys() -> (SecretKey, PublicKey) {
+    let sk = SecretKey::new(rand::random::<[u8; SecretKey::BYTES]>());
+    // TEMPORÁRIO: uma chave pública a sério é derivada da privada
+    let pk = PublicKey::new(rand::random::<[u8; PublicKey::BYTES]>());
+    (sk, pk)
 }
 
